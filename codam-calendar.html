@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
     <title>Unified Codam Calendar</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@100..900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #cfcfcf;
@@ -14,7 +15,7 @@
             --text: #000000;
             --text-dim: #3b3b3b;
             --accent-1: #bc06bc;
-            --accent-2: #ff0088;
+            --accent-2: #ff0000;
             --accent-3: #ffaa00;
             --accent-4: #00aaff;
         }
@@ -26,7 +27,7 @@
         }
 
         body {
-            font-family: 'IBM Plex Mono', monospace;
+            font-family: 'Roboto', sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
@@ -46,9 +47,10 @@
         }
 
         h1 {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 2.5rem;
-            font-weight: 700;
+            font-style: normal;
+            font-weight: 400;
             letter-spacing: -0.02em;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
@@ -84,7 +86,7 @@
             border: 1px solid var(--border);
             cursor: pointer;
             transition: all 0.2s;
-            font-family: 'IBM Plex Mono', monospace;
+            font-family: 'Roboto', sans-serif;
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -118,7 +120,7 @@
             border: 1px solid var(--border);
             color: var(--text);
             cursor: pointer;
-            font-family: 'IBM Plex Mono', monospace;
+            font-family: 'Roboto', sans-serif;
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -174,9 +176,9 @@
         }
 
         .event-card.cal-0::before { background: var(--accent-1); }
-        .event-card.cal-1::before { background: var(--accent-2); }
+        .event-card.cal-1::before { background: var(--accent-4); }
         .event-card.cal-2::before { background: var(--accent-3); }
-        .event-card.cal-3::before { background: var(--accent-4); }
+        .event-card.cal-3::before { background: var(--accent-2); }
 
         .event-card:hover {
             border-color: var(--text-dim);
@@ -225,10 +227,10 @@
         }
 
         .event-title {
-            font-size: 1.15rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 500;
             margin-bottom: 0.35rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Roboto', sans-serif;
         }
 
         .event-location {
@@ -253,12 +255,29 @@
 
         .day-header {
             font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: 400;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--border);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Bebas Neue', sans-serif;
             text-transform: uppercase;
+        }
+
+        .day-section.agenda-focus > .day-header {
+            color: var(--accent-2);
+            border-bottom-color: var(--accent-2);
+        }
+
+        .day-section.agenda-today > .day-header::after {
+            content: ' — today';
+            font-size: 0.75em;
+            opacity: 0.6;
+        }
+
+        .no-events-day {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            padding: 0.6rem 0;
         }
 
         .no-events {
@@ -272,16 +291,15 @@
 
         .month-toolbar {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             gap: 1rem;
-            flex-wrap: wrap;
             margin-bottom: 1rem;
         }
 
         .month-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.2rem;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text);
@@ -298,7 +316,7 @@
             background: var(--bg);
             color: var(--text);
             cursor: pointer;
-            font-family: 'IBM Plex Mono', monospace;
+            font-family: 'Roboto', sans-serif;
             text-transform: uppercase;
             font-size: 0.8rem;
         }
@@ -335,6 +353,11 @@
             border: 1px solid var(--border);
             padding: 0.5rem;
             overflow: hidden;
+            cursor: pointer;
+        }
+
+        .month-cell:hover {
+            border-color: var(--text-dim);
         }
 
         .month-cell.outside-month {
@@ -379,6 +402,11 @@
         .month-event-text {
             color: var(--text);
         }
+
+        .month-event.cal-0 { color: var(--accent-1); }
+        .month-event.cal-1 { color: var(--accent-4); }
+        .month-event.cal-2 { color: var(--accent-3); }
+        .month-event.cal-3 { color: var(--accent-2); }
 
         .month-more {
             font-size: 0.72rem;
@@ -427,7 +455,7 @@
     <div class="container">
         <header>
             <h1>Codam Calendar</h1>
-            <div class="subtitle">Unified Event Aggregator</div>
+            <div class="subtitle">Unified Codam Calendar</div>
         </header>
 
         <div class="controls">
@@ -435,7 +463,7 @@
                 <div id="calendarToggles"></div>
             </div>
             <div class="view-controls">
-                <button class="view-btn active" data-view="week">Week</button>
+                <button class="view-btn active" data-view="agenda">Agenda</button>
                 <button class="view-btn" data-view="month">Month</button>
             </div>
         </div>
@@ -473,9 +501,11 @@
 
         let state = {
             enabledCalendars: new Set([0, 1, 2, 3]),
-            view: 'week',
+            view: 'agenda',
             events: [],
-            monthCursor: new Date()
+            monthCursor: new Date(),
+            agendaStart: new Date(),
+            agendaFocusDate: null
         };
 
         function initToggles() {
@@ -497,6 +527,15 @@
             });
         }
 
+        function switchToAgenda(date) {
+            state.view = 'agenda';
+            state.agendaStart = date || new Date();
+            state.agendaFocusDate = date || null;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.view-btn[data-view="agenda"]').classList.add('active');
+            fetchEvents();
+        }
+
         function initViewControls() {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -505,6 +544,9 @@
                     state.view = e.target.dataset.view;
                     if (state.view === 'month') {
                         state.monthCursor = startOfMonth(new Date());
+                    } else if (state.view === 'agenda') {
+                        state.agendaStart = new Date();
+                        state.agendaFocusDate = null;
                     }
                     fetchEvents();
                 });
@@ -523,28 +565,22 @@
             return new Date(date.getFullYear(), date.getMonth() + count, 1);
         }
 
-        function startOfWeek(date) {
+        function startOfWeekMonday(date) {
             const d = new Date(date);
             d.setHours(0, 0, 0, 0);
             const day = d.getDay();
-            d.setDate(d.getDate() - day);
-            return d;
-        }
-
-        function endOfWeek(date) {
-            const d = startOfWeek(date);
-            d.setDate(d.getDate() + 7);
+            d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
             return d;
         }
 
         function fetchRangeForView() {
-            const now = new Date();
             if (state.view === 'month') {
                 const start = startOfMonth(state.monthCursor);
                 const end = endOfMonth(state.monthCursor);
                 return { start, end };
             }
-            return { start: now, end: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) };
+            const start = startOfWeekMonday(state.agendaStart);
+            return { start, end: new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) };
         }
 
         async function fetchEvents() {
@@ -608,8 +644,7 @@
             return new Date(dateStr).toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
-                day: 'numeric',
-                year: 'numeric'
+                day: 'numeric'
             });
         }
 
@@ -620,10 +655,18 @@
             });
         }
 
+        function formatWeekLabel(monday) {
+            const sunday = new Date(monday);
+            sunday.setDate(sunday.getDate() + 6);
+            const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return `${fmt(monday)} – ${fmt(sunday)}, ${monday.getFullYear()}`;
+        }
+
         function formatTime(dateStr) {
-            return new Date(dateStr).toLocaleTimeString('en-US', {
+            return new Date(dateStr).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                hour12: false
             });
         }
 
@@ -634,11 +677,12 @@
             const start = formatTime(event.start.dateTime);
             const end = formatTime(event.end.dateTime);
             return `
-                <span class="event-range">
+
+                    <span class="event-time-from"> from </span>
                     <span class="event-time-start">${start}</span>
-                    <span class="event-time-sep">—</span>
+                    <span class="event-time-to"> to </span>
                     <span class="event-time-end">${end}</span>
-                </span>
+
             `;
         }
 
@@ -656,36 +700,77 @@
             return groups;
         }
 
-        function renderWeekView(eventsByDay) {
-            const entries = Object.entries(eventsByDay);
-            if (!entries.length) {
-                document.getElementById('content').innerHTML = `
-                    <div class="no-events">
-                        No events found in the selected calendars for this time period.
-                    </div>
-                `;
-                return;
-            }
+        function renderAgendaView(eventsByDay) {
+            const weekStart = startOfWeekMonday(state.agendaStart);
+            const focusKey = state.agendaFocusDate ? dayKey(state.agendaFocusDate) : null;
+            const todayKey = dayKey(new Date());
 
-            const html = entries.map(([date, dayEvents]) => `
-                <div class="day-section">
-                    <div class="day-header">${formatDayHeader(date)}</div>
-                    <div class="events-grid">
-                        ${dayEvents.map(event => `
-                            <div class="event-card cal-${event.calendarIndex}">
-                                <div class="event-meta">
-                                    ${formatEventRange(event)}
-                                    <div class="event-calendar">${event.calendarName}</div>
-                                </div>
-                                <div class="event-title">${event.summary || 'Space is occupied'}</div>
-                                ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
-                            </div>
-                        `).join('')}
+            const days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date(weekStart);
+                d.setDate(d.getDate() + i);
+                return d;
+            });
+
+            const toolbar = `
+                <div class="month-toolbar">
+                    <div class="month-title">${formatWeekLabel(weekStart)}</div>
+                    <div class="month-nav">
+                        <button class="month-nav-btn" id="prevWeekBtn">Prev</button>
+                        <button class="month-nav-btn" id="agendaTodayBtn">Today</button>
+                        <button class="month-nav-btn" id="nextWeekBtn">Next</button>
                     </div>
                 </div>
-            `).join('');
+            `;
 
-            document.getElementById('content').innerHTML = html;
+            const daySections = days.map(d => {
+                const key = dayKey(d);
+                const dayEvents = eventsByDay[key] || [];
+                const classes = [
+                    'day-section',
+                    key === focusKey ? 'agenda-focus' : '',
+                    key === todayKey ? 'agenda-today' : ''
+                ].filter(Boolean).join(' ');
+
+                return `
+                    <div class="${classes}" id="day-${key}">
+                        <div class="day-header">${formatDayHeader(key)}</div>
+                        <div class="events-grid">
+                            ${dayEvents.length ? dayEvents.map(event => `
+                                <div class="event-card cal-${event.calendarIndex}">
+                                    <div class="event-title">
+                                        ${event.calendarName} is occupied ${formatEventRange(event)}
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="no-events-day">No bookings</div>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('content').innerHTML = toolbar + daySections;
+
+            document.getElementById('prevWeekBtn').onclick = () => {
+                state.agendaStart = new Date(weekStart);
+                state.agendaStart.setDate(state.agendaStart.getDate() - 7);
+                state.agendaFocusDate = null;
+                fetchEvents();
+            };
+            document.getElementById('agendaTodayBtn').onclick = () => {
+                state.agendaStart = new Date();
+                state.agendaFocusDate = new Date();
+                fetchEvents();
+            };
+            document.getElementById('nextWeekBtn').onclick = () => {
+                state.agendaStart = new Date(weekStart);
+                state.agendaStart.setDate(state.agendaStart.getDate() + 7);
+                state.agendaFocusDate = null;
+                fetchEvents();
+            };
+
+            if (focusKey) {
+                const el = document.getElementById(`day-${focusKey}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function buildMonthCells(cursor) {
@@ -736,7 +821,7 @@
                             ].join(' ').trim();
 
                             return `
-                                <div class="${classes}">
+                                <div class="${classes}" data-date="${key}">
                                     <div class="month-cell-day">${cell.date.getDate()}</div>
                                     <div class="month-cell-events">
                                         ${visibleEvents.map(event => `
@@ -744,7 +829,7 @@
                                                 <span class="month-event-dot"></span>
                                                 <span class="month-event-text">
                                                     ${isAllDayEvent(event) ? 'All day' : formatTime(event.start.dateTime)}
-                                                    · ${event.summary || 'Untitled Event'}
+                                                    · ${event.summary || 'Busy'}
                                                 </span>
                                             </div>
                                         `).join('')}
@@ -758,6 +843,13 @@
             `;
 
             document.getElementById('content').innerHTML = html;
+
+            document.querySelectorAll('.month-cell[data-date]').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const [y, m, d] = cell.dataset.date.split('-').map(Number);
+                    switchToAgenda(new Date(y, m - 1, d));
+                });
+            });
 
             const prev = document.getElementById('prevMonthBtn');
             const today = document.getElementById('todayBtn');
@@ -783,7 +875,7 @@
             if (state.view === 'month') {
                 renderMonthView(eventsByDay);
             } else {
-                renderWeekView(eventsByDay);
+                renderAgendaView(eventsByDay);
             }
         }
 

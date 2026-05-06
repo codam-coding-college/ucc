@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unified Codam Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #cfcfcf;
+            --surface: #c0c0c0;
+            --surface-2: #797373;
+            --border: #2a2a2a;
+            --text: #000000;
+            --text-dim: #3b3b3b;
+            --accent-1: #bc06bc;
+            --accent-2: #ff0088;
+            --accent-3: #ffaa00;
+            --accent-4: #00aaff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-4));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .calendar-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .calendar-toggle:hover {
+            border-color: var(--text-dim);
+            transform: translateX(2px);
+        }
+
+        .calendar-toggle input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .calendar-toggle.cal-0 { border-left: 3px solid var(--accent-1); }
+        .calendar-toggle.cal-1 { border-left: 3px solid var(--accent-4); }
+        .calendar-toggle.cal-2 { border-left: 3px solid var(--accent-3); }
+        .calendar-toggle.cal-3 { border-left: 3px solid var(--accent-2); }
+
+        .view-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .view-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            background: var(--surface);
+            border-color: var(--text-dim);
+        }
+
+        .view-btn.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .events-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .event-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .event-card.cal-0::before { background: var(--accent-1); }
+        .event-card.cal-1::before { background: var(--accent-2); }
+        .event-card.cal-2::before { background: var(--accent-3); }
+        .event-card.cal-3::before { background: var(--accent-4); }
+
+        .event-card:hover {
+            border-color: var(--text-dim);
+            transform: translateX(4px);
+        }
+
+        .event-card:hover::before {
+            width: 8px;
+        }
+
+        .event-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.7rem;
+            flex-wrap: wrap;
+        }
+
+        .event-range {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.65rem;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .event-range.all-day {
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .event-time-start,
+        .event-time-end {
+            white-space: nowrap;
+        }
+
+        .event-time-sep {
+            color: var(--text-dim);
+            opacity: 0.8;
+        }
+
+        .event-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .event-location {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        .event-calendar {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+        }
+
+        .day-section {
+            margin-bottom: 3rem;
+        }
+
+        .day-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+            font-size: 1rem;
+            border: 1px dashed var(--border);
+            background: var(--surface);
+        }
+
+        .month-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .month-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text);
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .month-nav-btn {
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .month-nav-btn:hover {
+            background: var(--surface);
+        }
+
+        .month-grid-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .month-weekday {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .month-cell {
+            min-height: 130px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            overflow: hidden;
+        }
+
+        .month-cell.outside-month {
+            opacity: 0.35;
+        }
+
+        .month-cell.today {
+            border-color: var(--accent-2);
+            box-shadow: inset 0 0 0 1px var(--accent-2);
+        }
+
+        .month-cell-day {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .month-cell-events {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .month-event {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            line-height: 1.2;
+        }
+
+        .month-event-dot {
+            width: 8px;
+            height: 8px;
+            margin-top: 0.3rem;
+            border-radius: 50%;
+            background: currentColor;
+            flex: 0 0 auto;
+        }
+
+        .month-event-text {
+            color: var(--text);
+        }
+
+        .month-more {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 0.1rem;
+        }
+
+        @media (max-width: 900px) {
+            .month-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .month-grid-header {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .view-controls {
+                width: 100%;
+            }
+
+            .view-btn {
+                flex: 1;
+            }
+
+            .month-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Codam Calendar</h1>
+            <div class="subtitle">Unified Event Aggregator</div>
+        </header>
+
+        <div class="controls">
+            <div style="flex: 1;">
+                <div id="calendarToggles"></div>
+            </div>
+            <div class="view-controls">
+                <button class="view-btn active" data-view="week">Week</button>
+                <button class="view-btn" data-view="month">Month</button>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">Loading calendar data...</div>
+        </div>
+    </div>
+
+    <script>
+        const CALENDARS = [
+            {
+                id: 'codam.nl_nbee5r2qb3vgdtv699hjplgt0o@group.calendar.google.com',
+                name: 'Purple room',
+                color: 'accent-1'
+            },
+            {
+                id: 'codam.nl_4sv4nogvmpu7ug0v9b1jtifd30@group.calendar.google.com',
+                name: 'Blue room',
+                color: 'accent-4'
+            },
+            {
+                id: 'codam.nl_mj8h284te2s2k2ct2q7rmpcck0@group.calendar.google.com',
+                name: 'Upstairs Open space',
+                color: 'accent-3'
+            },
+            {
+                id: 'codam.nl_65c4oe7k7fq4lgblfcfjv6m23g@group.calendar.google.com',
+                name: 'Auditorium',
+                color: 'accent-2'
+            }
+        ];
+
+        const API_KEY = '***REMOVED***';
+
+        let state = {
+            enabledCalendars: new Set([0, 1, 2, 3]),
+            view: 'week',
+            events: [],
+            monthCursor: new Date()
+        };
+
+        function initToggles() {
+            const container = document.getElementById('calendarToggles');
+            container.innerHTML = CALENDARS.map((cal, idx) => `
+                <label class="calendar-toggle cal-${idx}">
+                    <input type="checkbox" checked data-cal="${idx}">
+                    <span>${cal.name}</span>
+                </label>
+            `).join('');
+
+            container.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const calIdx = parseInt(e.target.dataset.cal, 10);
+                    if (e.target.checked) state.enabledCalendars.add(calIdx);
+                    else state.enabledCalendars.delete(calIdx);
+                    renderEvents();
+                });
+            });
+        }
+
+        function initViewControls() {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.view = e.target.dataset.view;
+                    if (state.view === 'month') {
+                        state.monthCursor = startOfMonth(new Date());
+                    }
+                    fetchEvents();
+                });
+            });
+        }
+
+        function startOfMonth(date) {
+            return new Date(date.getFullYear(), date.getMonth(), 1);
+        }
+
+        function endOfMonth(date) {
+            return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        }
+
+        function addMonths(date, count) {
+            return new Date(date.getFullYear(), date.getMonth() + count, 1);
+        }
+
+        function startOfWeek(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const day = d.getDay();
+            d.setDate(d.getDate() - day);
+            return d;
+        }
+
+        function endOfWeek(date) {
+            const d = startOfWeek(date);
+            d.setDate(d.getDate() + 7);
+            return d;
+        }
+
+        function fetchRangeForView() {
+            const now = new Date();
+            if (state.view === 'month') {
+                const start = startOfMonth(state.monthCursor);
+                const end = endOfMonth(state.monthCursor);
+                return { start, end };
+            }
+            return { start: now, end: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) };
+        }
+
+        async function fetchEvents() {
+            const range = fetchRangeForView();
+            const timeMin = range.start.toISOString();
+            const timeMax = range.end.toISOString();
+
+            document.getElementById('content').innerHTML = '<div class="loading">Loading calendar data...</div>';
+
+            try {
+                const fetchPromises = CALENDARS.map(async (cal, idx) => {
+                    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events?key=${API_KEY}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=250`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    return (data.items || []).map(event => ({
+                        ...event,
+                        calendarIndex: idx,
+                        calendarName: cal.name
+                    }));
+                });
+
+                const results = await Promise.all(fetchPromises);
+                state.events = results.flat().sort((a, b) => {
+                    const aTime = new Date(a.start.dateTime || a.start.date);
+                    const bTime = new Date(b.start.dateTime || b.start.date);
+                    return aTime - bTime;
+                });
+
+                renderEvents();
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="no-events">
+                        Error loading calendar data. Please check your internet connection or try again later.
+                    </div>
+                `;
+            }
+        }
+
+        function isAllDayEvent(event) {
+            return !event.start.dateTime;
+        }
+
+        function eventStartDate(event) {
+            return new Date(event.start.dateTime || event.start.date);
+        }
+
+        function eventEndDate(event) {
+            return new Date(event.end.dateTime || event.end.date);
+        }
+
+        function dayKey(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatDayHeader(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function formatMonthLabel(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function formatTime(dateStr) {
+            return new Date(dateStr).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatEventRange(event) {
+            if (isAllDayEvent(event)) {
+                return `<span class="event-range all-day">All day</span>`;
+            }
+            const start = formatTime(event.start.dateTime);
+            const end = formatTime(event.end.dateTime);
+            return `
+                <span class="event-range">
+                    <span class="event-time-start">${start}</span>
+                    <span class="event-time-sep">—</span>
+                    <span class="event-time-end">${end}</span>
+                </span>
+            `;
+        }
+
+        function groupVisibleEventsByDay() {
+            const filtered = state.events.filter(event => state.enabledCalendars.has(event.calendarIndex));
+            const groups = {};
+            filtered.forEach(event => {
+                const key = dayKey(eventStartDate(event));
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(event);
+            });
+            Object.keys(groups).forEach(key => {
+                groups[key].sort((a, b) => eventStartDate(a) - eventStartDate(b));
+            });
+            return groups;
+        }
+
+        function renderWeekView(eventsByDay) {
+            const entries = Object.entries(eventsByDay);
+            if (!entries.length) {
+                document.getElementById('content').innerHTML = `
+                    <div class="no-events">
+                        No events found in the selected calendars for this time period.
+                    </div>
+                `;
+                return;
+            }
+
+            const html = entries.map(([date, dayEvents]) => `
+                <div class="day-section">
+                    <div class="day-header">${formatDayHeader(date)}</div>
+                    <div class="events-grid">
+                        ${dayEvents.map(event => `
+                            <div class="event-card cal-${event.calendarIndex}">
+                                <div class="event-meta">
+                                    ${formatEventRange(event)}
+                                    <div class="event-calendar">${event.calendarName}</div>
+                                </div>
+                                <div class="event-title">${event.summary || 'Space is occupied'}</div>
+                                ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        function buildMonthCells(cursor) {
+            const first = startOfMonth(cursor);
+            const last = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+            const startOffset = first.getDay();
+            const totalCells = Math.ceil((startOffset + last.getDate()) / 7) * 7;
+
+            const cells = [];
+            for (let i = 0; i < totalCells; i++) {
+                const dayNum = i - startOffset + 1;
+                const date = new Date(cursor.getFullYear(), cursor.getMonth(), dayNum);
+                const inMonth = dayNum >= 1 && dayNum <= last.getDate();
+                cells.push({ date, inMonth });
+            }
+            return cells;
+        }
+
+        function renderMonthView(eventsByDay) {
+            const cursor = state.monthCursor;
+            const cells = buildMonthCells(cursor);
+            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const todayKey = dayKey(new Date());
+
+            const html = `
+                <div class="day-section">
+                    <div class="month-toolbar">
+                        <div class="month-title">${formatMonthLabel(cursor)}</div>
+                        <div class="month-nav">
+                            <button class="month-nav-btn" id="prevMonthBtn">Prev</button>
+                            <button class="month-nav-btn" id="todayBtn">Today</button>
+                            <button class="month-nav-btn" id="nextMonthBtn">Next</button>
+                        </div>
+                    </div>
+                    <div class="month-grid-header">
+                        ${weekdays.map(d => `<div class="month-weekday">${d}</div>`).join('')}
+                    </div>
+                    <div class="month-grid">
+                        ${cells.map(cell => {
+                            const key = dayKey(cell.date);
+                            const dayEvents = cell.inMonth ? (eventsByDay[key] || []) : [];
+                            const visibleEvents = dayEvents.slice(0, 3);
+                            const moreCount = Math.max(0, dayEvents.length - 3);
+                            const classes = [
+                                'month-cell',
+                                cell.inMonth ? '' : 'outside-month',
+                                key === todayKey ? 'today' : ''
+                            ].join(' ').trim();
+
+                            return `
+                                <div class="${classes}">
+                                    <div class="month-cell-day">${cell.date.getDate()}</div>
+                                    <div class="month-cell-events">
+                                        ${visibleEvents.map(event => `
+                                            <div class="month-event cal-${event.calendarIndex}">
+                                                <span class="month-event-dot"></span>
+                                                <span class="month-event-text">
+                                                    ${isAllDayEvent(event) ? 'All day' : formatTime(event.start.dateTime)}
+                                                    · ${event.summary || 'Untitled Event'}
+                                                </span>
+                                            </div>
+                                        `).join('')}
+                                        ${moreCount > 0 ? `<div class="month-more">+${moreCount} more</div>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+
+            const prev = document.getElementById('prevMonthBtn');
+            const today = document.getElementById('todayBtn');
+            const next = document.getElementById('nextMonthBtn');
+
+            if (prev) prev.onclick = () => {
+                state.monthCursor = addMonths(state.monthCursor, -1);
+                fetchEvents();
+            };
+            if (today) today.onclick = () => {
+                state.monthCursor = startOfMonth(new Date());
+                fetchEvents();
+            };
+            if (next) next.onclick = () => {
+                state.monthCursor = addMonths(state.monthCursor, 1);
+                fetchEvents();
+            };
+        }
+
+        function renderEvents() {
+            const eventsByDay = groupVisibleEventsByDay();
+
+            if (state.view === 'month') {
+                renderMonthView(eventsByDay);
+            } else {
+                renderWeekView(eventsByDay);
+            }
+        }
+
+        initToggles();
+        initViewControls();
+        fetchEvents();
+    </script>
+</body>
+</html>

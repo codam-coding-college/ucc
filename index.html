@@ -866,7 +866,8 @@
         function buildMonthCells(cursor) {
             const first = startOfMonth(cursor);
             const last = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
-            const startOffset = first.getDay();
+            const startDay = first.getDay();
+            const startOffset = startDay === 0 ? 6 : startDay - 1; 
             const totalCells = Math.ceil((startOffset + last.getDate()) / 7) * 7;
 
             const cells = [];
@@ -882,7 +883,7 @@
         function renderMonthView(eventsByDay) {
             const cursor = state.monthCursor;
             const cells = buildMonthCells(cursor);
-            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; 
             const todayKey = dayKey(new Date());
 
             const html = `
